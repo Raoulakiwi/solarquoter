@@ -1,0 +1,40 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Data outputs (keep source scripts, not generated data)
+data/raw/*.parquet
+data/scored/*.parquet
+data/qualified/*.parquet
+data/outreach/*.parquet
+microsites/*.html
+
+# Config with secrets
+config.yaml
+.env
+.secrets/
+
+# OS
+.DS_Store
+Thumbs.db
