@@ -84,3 +84,13 @@ thelist:
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Agent configuration for outreach
+agent:
+  name: "Ben"
+  phone: "+61 400 000 000"
+  email: "ben@solaranalytics.com.au"
+  website: "https://solaranalytics.com.au"
+
+# Microsite configuration
+microsite_base_url: "https://solaranalytics.com.au/sites/"
