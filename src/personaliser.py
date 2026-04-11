@@ -68,10 +68,16 @@ def get_first_name(owner_name: Optional[str]) -> str:
     """
     if not owner_name or pd.isna(owner_name):
         return "there"
-    parts = str(owner_name).strip().split()
-    if parts:
-        return parts[0]
-    return "there"
+    # Handle "Principal, COMPANY NAME PTY LTD" pattern — split on comma first
+    clean = str(owner_name).strip()
+    if ',' in clean:
+        name_part = clean.split(',')[0].strip()
+    else:
+        name_part = clean.split()[0] if clean.split() else "there"
+    # Final fallback
+    if name_part.lower() in ('principal', 'director', 'owner', 'manager', 'secretary'):
+        return "there"
+    return name_part
 
 
 def get_company_name(business_name: Optional[str], address: Optional[str], full_address: Optional[str]) -> str:
@@ -132,7 +138,7 @@ def generate_personalised_email(lead_row: pd.Series, config: Dict[str, Any]) -> 
     agent_name = config.get('agent', {}).get('name', 'Ben')
     agent_email = config.get('agent', {}).get('email', 'ben@solaranalytics.com.au')
     
-    subject = f"{first_name}, {company_name} rooftop could cut your power bills significantly"
+    subject = f"{company_name} rooftop could cut your power bills significantly"
     
     body = f"""Hi {first_name},
 
