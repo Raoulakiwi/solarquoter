@@ -58,11 +58,13 @@ building_types:
 min_footprint_m2: 200
 preferred_footprint_m2: 500
 
-# Allowed zoning classifications
+# Allowed zoning classifications (TheLIST zone names)
+# Note: TheLIST uses coded format like "24.0 Light Industrial", "23.0 Commercial"
+# No "General Industrial" exists in TheLIST - using General Business as equivalent
 allowed_zones:
-  - General Industrial
-  - Light Industrial
-  - Commercial
+  - "24.0 Light Industrial"
+  - "23.0 Commercial"
+  - "21.0 General Business"
 
 # Output paths
 output:

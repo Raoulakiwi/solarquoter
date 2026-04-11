@@ -22,8 +22,8 @@ from src.config import (
     get_min_footprint,
     get_allowed_zones,
     get_output_path,
-    create_thelist_client,
 )
+from src.thelist_client import create_thelist_client
 from src.data_schema import RAW_LEAD_COLUMNS
 from src.spatial_utils import (
     spatial_join_buildings_addresses,
@@ -150,8 +150,13 @@ def run_phase1(config: dict, region: str = 'northwest') -> gpd.GeoDataFrame:
     print(f"Buildings in allowed zones: {zoned_count:,}")
     
     if zoned_count == 0:
-        logger.warning("No buildings in allowed zones")
-        return gpd.GeoDataFrame()
+        logger.warning("No zoning data for this region - skipping zoning filter")
+        # Proceed without zoning filter if no zones returned
+        # (zoning data may not be available for all regions)
+        zoned_gdf = filtered_gdf.copy()
+        zoned_gdf['zone'] = 'Unknown'
+        zoned_count = len(zoned_gdf)
+        print(f"Proceeding with {zoned_count:,} buildings without zoning verification")
     
     # Query addresses
     print("\n[6/6] Querying address points...")

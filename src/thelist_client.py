@@ -118,6 +118,10 @@ class TheLISTClient:
     ) -> gpd.GeoDataFrame:
         """Query building polygons from TheLIST.
         
+        Note: TheLIST WFS bbox/spatial filters have limited effectiveness.
+        We query with WHERE clause (which works reliably) and filter by
+        bounding box in pandas after retrieval.
+        
         Args:
             bbox: Bounding box with north, south, east, west keys.
             building_types: List of BLD_PUR values to filter.
@@ -136,16 +140,13 @@ class TheLISTClient:
             where_parts.append(f"BLD_PUR IN ('{type_list}')")
         
         if min_area_m2 is not None:
-            # SHAPE.AREA is in square degrees for unprojected data, but TheLIST
-            # typically stores area in square meters for projected layers
-            # Using raw area filter - may need adjustment based on actual units
             where_parts.append(f"SHAPE.AREA >= {min_area_m2}")
         
         where = ' AND '.join(where_parts) if where_parts else None
         
+        # Query without bbox filter (bbox filter doesn't work reliably on this WFS)
         gdf = self._query_layer(
             layer_id=13,
-            bbox=bbox,
             where=where,
             out_fields=out_fields
         )
@@ -153,6 +154,11 @@ class TheLISTClient:
         # Rename SHAPE.AREA to footprint_m2
         if len(gdf) > 0 and 'SHAPE.AREA' in gdf.columns:
             gdf.rename(columns={'SHAPE.AREA': 'footprint_m2'}, inplace=True)
+        
+        # Filter by bounding box in pandas (since WFS bbox filter doesn't work)
+        if len(gdf) > 0 and bbox:
+            gdf = gdf.cx[bbox['west']:bbox['east'], bbox['south']:bbox['north']]
+            logger.info(f"Filtered to bbox: {len(gdf)} buildings remaining")
         
         return gdf
     
@@ -162,19 +168,28 @@ class TheLISTClient:
     ) -> gpd.GeoDataFrame:
         """Query zoning polygons from TheLIST.
         
+        Note: WFS geometry/bbox filter has limited effectiveness on this service.
+        We query all zones (filtered by WHERE if possible) and filter by bbox in pandas.
+        
         Args:
             bbox: Bounding box with north, south, east, west keys.
             
         Returns:
             GeoDataFrame of zoning polygons with ZONE field.
         """
-        out_fields = ['OBJECTID', 'ZONE']
+        out_fields = ['OBJECTID', 'ZONE', 'SHAPE.AREA']
         
+        # Query without bbox (bbox filter doesn't work on this WFS)
         gdf = self._query_layer(
             layer_id=4,
-            bbox=bbox,
+            where="ZONE IS NOT NULL",  # Get all zones
             out_fields=out_fields
         )
+        
+        # Filter by bounding box in pandas
+        if len(gdf) > 0 and bbox:
+            gdf = gdf.cx[bbox['west']:bbox['east'], bbox['south']:bbox['north']]
+            logger.info(f"Filtered zoning to bbox: {len(gdf)} zones remaining")
         
         return gdf
     
@@ -184,6 +199,9 @@ class TheLISTClient:
     ) -> gpd.GeoDataFrame:
         """Query address points from TheLIST.
         
+        Note: WFS geometry/bbox filter has limited effectiveness on this service.
+        We query all addresses and filter by bbox in pandas.
+        
         Args:
             bbox: Bounding box with north, south, east, west keys.
             
@@ -192,11 +210,16 @@ class TheLISTClient:
         """
         out_fields = ['ST_NO_FROM', 'STREET', 'ST_TYPE', 'LOCALITY', 'POSTCODE', 'PROP_NAME']
         
+        # Query without bbox (bbox filter doesn't work reliably)
         gdf = self._query_layer(
             layer_id=9,
-            bbox=bbox,
             out_fields=out_fields
         )
+        
+        # Filter by bounding box in pandas
+        if len(gdf) > 0 and bbox:
+            gdf = gdf.cx[bbox['west']:bbox['east'], bbox['south']:bbox['north']]
+            logger.info(f"Filtered addresses to bbox: {len(gdf)} addresses remaining")
         
         return gdf
 
