@@ -1,0 +1,84 @@
+regions:
+  northwest:
+    name: "North West Tasmania"
+    bbox:
+      north: -40.0
+      south: -41.5
+      east: 145.8
+      west: 145.0
+    postcodes:
+      - 7300
+      - 7301
+      - 7302
+      - 7303
+      - 7304
+      - 7305
+      - 7306
+      - 7307
+      - 7310
+      - 7320
+      - 7321
+      - 7322
+      - 7325
+      - 7330
+      - 7331
+
+  north_launceston:
+    name: "North Launceston"
+    bbox:
+      north: -41.4
+      south: -41.6
+      east: 147.15
+      west: 146.85
+    postcodes:
+      - 7250
+
+  south_launceston:
+    name: "South Launceston"
+    bbox:
+      north: -41.4
+      south: -41.6
+      east: 147.15
+      west: 146.85
+    postcodes:
+      - 7250
+
+building_types:
+  # Primary targets
+  - Industrial
+  - Warehouse
+  - Factory
+  - Cold Store
+  # Secondary (need manual review)
+  - Commercial
+  # Large agricultural sheds
+  - Agricultural
+
+# Building footprint thresholds
+min_footprint_m2: 200
+preferred_footprint_m2: 500
+
+# Allowed zoning classifications
+allowed_zones:
+  - General Industrial
+  - Light Industrial
+  - Commercial
+
+# Output paths
+output:
+  raw_leads: "data/raw/raw_leads_{region}.parquet"
+  scored_leads: "data/processed/scored_leads_{region}.parquet"
+  qualified_leads: "data/processed/qualified_leads_{region}.parquet"
+  outreach: "data/processed/outreach_{region}.parquet"
+
+# TheLIST WFS endpoint
+thelist:
+  wfs_url: "https://services.thelist.tas.gov.au/arcgis/rest/services/Public/OpenDataWFS/MapServer"
+  building_layer_id: 13
+  zoning_layer_id: 4
+  address_layer_id: 9
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
