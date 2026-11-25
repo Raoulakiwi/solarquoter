@@ -38,3 +38,6 @@ config.yaml
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude factory verification output (uploaded as CI artifacts)
+factory-proof/
